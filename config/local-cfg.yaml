@@ -7,5 +7,5 @@ postgres:
   port: 5433
   user: root
   password: root
-  dbname: market
+  dbname: user-service
   ssl_mode: disable

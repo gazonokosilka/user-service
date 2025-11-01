@@ -1,24 +1,24 @@
 services:
   postgres:
     image: postgres:latest
-    container_name: market-db
+    container_name: user-service-db
     environment:
       POSTGRES_USER: root
       POSTGRES_PASSWORD: root
-      POSTGRES_DB: market
+      POSTGRES_DB: user-service
     ports:
       - "5433:5432"
     volumes:
-      - market_postgres_data:/var/lib/postgresql/data
+      - user_service_postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U root -d auth"]
+      test: ["CMD-SHELL", "pg_isready -U root -d user-service"]
       interval: 5s
       timeout: 5s
       retries: 5
 
   redis:
     image: redis:7.2
-    container_name: auth_redis
+    container_name: user-service_redis
     ports:
       - "6379:6379"
     volumes:
@@ -32,5 +32,5 @@ services:
       retries: 5
 
 volumes:
-  market_postgres_data:
+  user_service_postgres_data:
   redis_data:
