@@ -1,0 +1,11 @@
+server:
+  port: 8081
+  timeout: 2m
+postgres:
+  path: jdbc:postgresql://
+  host: localhost
+  port: 5433
+  user: root
+  password: root
+  dbname: market
+  ssl_mode: disable
