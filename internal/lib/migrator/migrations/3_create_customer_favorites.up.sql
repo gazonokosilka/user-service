@@ -8,4 +8,3 @@ CREATE TABLE IF NOT EXISTS "favorites" (
         REFERENCES "customers"("id") 
         ON DELETE CASCADE
 );
-
