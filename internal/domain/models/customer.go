@@ -26,3 +26,9 @@ type CustomerAddress struct {
 	CustomerID uuid.UUID `db:"customer_id" json:"customer_id"`
 	CreatedAt  time.Time `db:"created_at" json:"created_at"`
 }
+
+type Favorite struct {
+	ProductID  uuid.UUID `db:"product_id" json:"product_id"`
+	CustomerID uuid.UUID `db:"customer_id" json:"customer_id"`
+	CreatedAt  time.Time `db:"created_at" json:"created_at"`
+}
