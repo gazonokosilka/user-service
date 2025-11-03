@@ -89,6 +89,17 @@ func (r *UpdateCustomerRequest) Validate() error {
 			return errors.New("last_name too long (max 100 characters)")
 		}
 	}
+
+	if r.Gender != nil {
+		if strings.TrimSpace(*r.Gender) == "" {
+			return errors.New("gender cannot be empty")
+		}
+		gender := strings.ToLower(strings.TrimSpace(*r.Gender))
+		if gender != "male" && gender != "female" {
+			return errors.New("gender must be male or female")
+		}
+	}
+
 	if r.Birthday != nil {
 		birthday, err := time.Parse("2006-01-02", strings.TrimSpace(*r.Birthday))
 		if err != nil {
