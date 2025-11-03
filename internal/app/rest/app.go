@@ -1,12 +1,10 @@
 package rest
 
 import (
-	//"github.com/PlaceForDesigners/marketplace-service/internal/service"
 	"context"
 
 	"github.com/go-chi/chi/v5"
 
-	//v1 "github.com/PlaceForDesigners/marketplace-service/internal/http/v1"
 	"log/slog"
 	"net/http"
 )
