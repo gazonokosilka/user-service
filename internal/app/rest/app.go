@@ -2,30 +2,30 @@ package rest
 
 import (
 	"context"
-
-	"github.com/go-chi/chi/v5"
-
 	"log/slog"
 	"net/http"
+
+	v1 "user-service/internal/http/v1"
+	customerService "user-service/internal/service/customer"
+
+	"github.com/go-chi/chi/v5"
 )
 
 type App struct {
-	log *slog.Logger
-	// authService *service.Auth
-	httpServer *http.Server
-	// secret      string
+	log             *slog.Logger
+	customerService *customerService.Service
+	httpServer      *http.Server
 }
 
 func New(
 	log *slog.Logger,
-	//authService *service.Auth,
+	customerService *customerService.Service,
 	port string,
-	// secret string,
 ) *App {
 	r := chi.NewRouter()
 
-	// Route initialising
-	// v1.SetupRoutes(r, authService, log, secret)
+	// Регистрация маршрутов
+	v1.SetupRoutes(r, customerService, log)
 
 	httpServer := &http.Server{
 		Addr:    ":" + port,
@@ -33,13 +33,12 @@ func New(
 	}
 
 	return &App{
-		log: log,
-		//authService: authService,
-		httpServer: httpServer,
+		log:             log,
+		customerService: customerService,
+		httpServer:      httpServer,
 	}
 }
 
-// Run start http server
 func (a *App) Run() error {
 	const op = "app.rest.Run"
 	a.log.With(slog.String("op", op)).Info("starting REST server", "port", a.httpServer.Addr)

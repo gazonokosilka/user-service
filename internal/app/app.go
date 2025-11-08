@@ -7,7 +7,9 @@ import (
 	"user-service/internal/app/rest"
 	"user-service/internal/config"
 	"user-service/internal/lib/migrator"
+	customerService "user-service/internal/service/customer"
 	"user-service/internal/storage/psql"
+	customerRepo "user-service/internal/storage/repository/customer"
 )
 
 type App struct {
@@ -16,7 +18,6 @@ type App struct {
 	restApp *rest.App
 }
 
-// MustNew constructor of all app components
 func MustNew(log *slog.Logger) *App {
 	cfg := config.MustLoad()
 
@@ -27,24 +28,15 @@ func MustNew(log *slog.Logger) *App {
 		panic(err)
 	}
 
-	//authRepo := auth.New(storage.GetDB())
-	//permRepo := permission.New(storage.GetDB())
-	//redisToken := token.New(rdb.Get())
-	//codeProvider := code.New(rdb.Get())
+	// Инициализация репозитория
+	custRepo := customerRepo.New(storage.GetDB())
 
-	//authService := service.New(
-	//	log,
-	//	authRepo,
-	//	permRepo,
-	//	redisToken,
-	//	codeProvider,
-	//	cfg.TokenTTL,
-	//	cfg.SecretKey,
-	//)
+	// Инициализация сервиса
+	custService := customerService.New(log, custRepo)
 
 	restApp := rest.New(
 		log,
-		//authService,
+		custService,
 		cfg.Server.Port,
 	)
 
@@ -64,7 +56,6 @@ func (a *App) MustRun() {
 	}
 }
 
-// GracefulShutdown safety stop app
 func (a *App) GracefulShutdown() {
 	const op = "app.GracefulShutdown"
 	a.log.With(slog.String("op", op)).Info("shutting down application")
