@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/ilyakaznacheev/cleanenv"
@@ -53,6 +54,38 @@ func MustLoad() *Config {
 	if err := cleanenv.ReadConfig(path, &cfg); err != nil {
 		panic("failed to read config: " + err.Error())
 	}
+
+	// Переопределение из переменных окружения (приоритет над файлом)
+	if host := os.Getenv("POSTGRES_HOST"); host != "" {
+		cfg.Postgres.Host = host
+		fmt.Printf("Override Postgres Host from ENV: %s\n", host)
+	}
+	if port := os.Getenv("POSTGRES_PORT"); port != "" {
+		if p, err := strconv.Atoi(port); err == nil {
+			cfg.Postgres.Port = p
+			fmt.Printf("Override Postgres Port from ENV: %d\n", p)
+		}
+	}
+	if user := os.Getenv("POSTGRES_USER"); user != "" {
+		cfg.Postgres.User = user
+		fmt.Printf("Override Postgres User from ENV: %s\n", user)
+	}
+	if password := os.Getenv("POSTGRES_PASSWORD"); password != "" {
+		cfg.Postgres.Password = password
+		fmt.Println("Override Postgres Password from ENV: ***")
+	}
+	if db := os.Getenv("POSTGRES_DB"); db != "" {
+		cfg.Postgres.DbName = db
+		fmt.Printf("Override Postgres DB from ENV: %s\n", db)
+	}
+	if sslmode := os.Getenv("POSTGRES_SSLMODE"); sslmode != "" {
+		cfg.Postgres.SslMode = sslmode
+		fmt.Printf("Override Postgres SSLMode from ENV: %s\n", sslmode)
+	}
+
+	fmt.Printf("Final Postgres Config: %s:%d/%s (user: %s, sslmode: %s)\n",
+		cfg.Postgres.Host, cfg.Postgres.Port, cfg.Postgres.DbName, cfg.Postgres.User, cfg.Postgres.SslMode)
+
 	return &cfg
 }
 
