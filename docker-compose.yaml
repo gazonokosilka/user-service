@@ -3,15 +3,15 @@ services:
     image: postgres:latest
     container_name: user-service-db
     environment:
-      POSTGRES_USER: root
-      POSTGRES_PASSWORD: root
-      POSTGRES_DB: user-service
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: user_service
     ports:
       - "5433:5432"
     volumes:
       - user_service_postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U root -d user-service"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d user_service"]
       interval: 5s
       timeout: 5s
       retries: 5

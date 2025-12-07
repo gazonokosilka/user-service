@@ -11,8 +11,10 @@ pipeline {
             steps {
                 script {
                     sh '''
-                        docker-compose down || true
+                        docker-compose down -v || true
                         docker rm -f user-service-app || true
+                        docker volume rm user-service_user_service_postgres_data || true
+                        docker volume rm user-service_redis_data || true
                         docker network prune -f || true
                     '''
                 }
