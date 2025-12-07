@@ -18,6 +18,7 @@ import (
 type CustomerService interface {
 	CreateCustomer(ctx context.Context, req *dto.CreateCustomerRequest) (*models.Customer, error)
 	GetCustomer(ctx context.Context, id uuid.UUID) (*models.Customer, error)
+	GetAllCustomers(ctx context.Context) ([]models.Customer, error)
 	UpdateCustomer(ctx context.Context, id uuid.UUID, req *dto.UpdateCustomerRequest) (*models.Customer, error)
 }
 
@@ -80,6 +81,21 @@ func (h *Handler) GetCustomer(w http.ResponseWriter, r *http.Request) {
 	}
 
 	respondWithJSON(w, http.StatusOK, customer)
+}
+
+func (h *Handler) GetAllCustomers(w http.ResponseWriter, r *http.Request) {
+	const op = "handler.customer.GetAllCustomers"
+
+	log := h.log.With(slog.String("op", op))
+
+	customers, err := h.service.GetAllCustomers(r.Context())
+	if err != nil {
+		log.Error("failed to get customers", slog.String("error", err.Error()))
+		respondWithError(w, http.StatusInternalServerError, "failed to get customers")
+		return
+	}
+
+	respondWithJSON(w, http.StatusOK, customers)
 }
 
 func (h *Handler) UpdateCustomer(w http.ResponseWriter, r *http.Request) {

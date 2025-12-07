@@ -15,8 +15,8 @@ type CustomerRepository interface {
 	Create(ctx context.Context, customer *models.Customer) error
 	GetByID(ctx context.Context, id uuid.UUID) (*models.Customer, error)
 	GetByUserID(ctx context.Context, userID uuid.UUID) (*models.Customer, error)
+	GetAll(ctx context.Context) ([]models.Customer, error)
 	Update(ctx context.Context, id uuid.UUID, customer *models.Customer) error
-	Delete(ctx context.Context, id uuid.UUID) error
 }
 
 type Service struct {
@@ -85,6 +85,22 @@ func (s *Service) GetCustomer(ctx context.Context, id uuid.UUID) (*models.Custom
 	}
 
 	return customer, nil
+}
+
+func (s *Service) GetAllCustomers(ctx context.Context) ([]models.Customer, error) {
+	const op = "service.customer.GetAllCustomers"
+
+	log := s.log.With(slog.String("op", op))
+
+	customers, err := s.repo.GetAll(ctx)
+	if err != nil {
+		log.Error("failed to get customers", slog.String("error", err.Error()))
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+
+	log.Info("customers retrieved", slog.Int("count", len(customers)))
+
+	return customers, nil
 }
 
 func (s *Service) UpdateCustomer(ctx context.Context, id uuid.UUID, req *dto.UpdateCustomerRequest) (*models.Customer, error) {

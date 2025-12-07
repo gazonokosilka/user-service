@@ -24,6 +24,7 @@ func SetupRoutes(
 	r.Route("/api/v1", func(r chi.Router) {
 		r.Route("/customers", func(r chi.Router) {
 			r.Post("/", customerH.CreateCustomer)
+			r.Get("/", customerH.GetAllCustomers)
 			r.Get("/{id}", customerH.GetCustomer)
 			r.Put("/{id}", customerH.UpdateCustomer)
 		})

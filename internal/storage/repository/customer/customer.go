@@ -89,7 +89,24 @@ func (r *Repository) GetByUserID(ctx context.Context, userID uuid.UUID) (*models
 
 	return &customer, nil
 }
+func (r *Repository) GetAll(ctx context.Context) ([]models.Customer, error) {
+	const op = "repository.customer.GetAll"
 
+	query := `
+        SELECT id, first_name, last_name, gender, timezone, birthday, user_id, created_at
+        FROM customers
+        ORDER BY created_at DESC
+    `
+
+	var customers []models.Customer
+	err := r.db.SelectContext(ctx, &customers, query)
+
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+
+	return customers, nil
+}
 func (r *Repository) Update(ctx context.Context, id uuid.UUID, customer *models.Customer) error {
 	const op = "repository.customer.Update"
 
