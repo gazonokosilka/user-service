@@ -4,7 +4,7 @@ server:
 postgres:
   path: jdbc:postgresql://
   host: localhost
-  port: 5433
+  port: 5432
   user: root
   password: root
   dbname: user-service

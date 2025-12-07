@@ -13,6 +13,7 @@ pipeline {
                     sh '''
                         docker-compose down || true
                         docker rm -f user-service-app || true
+                        docker network prune -f || true
                     '''
                 }
             }
@@ -35,7 +36,10 @@ pipeline {
                     sh '''
                         docker-compose up -d postgres redis
                         echo "Waiting for databases to start..."
-                        sleep 15
+                        sleep 20
+                        
+                        # Проверка что PostgreSQL готов
+                        docker exec user-service-db pg_isready -U postgres || echo "PostgreSQL not ready yet"
                     '''
                 }
             }
@@ -47,8 +51,14 @@ pipeline {
                     sh '''
                         docker run -d \
                           --name user-service-app \
-                          --network ${COMPOSE_PROJECT_NAME}_default \
+                          --network user-service_default \
                           -p 8081:8081 \
+                          -e POSTGRES_HOST=user-service-db \
+                          -e POSTGRES_PORT=5432 \
+                          -e POSTGRES_USER=postgres \
+                          -e POSTGRES_PASSWORD=postgres \
+                          -e POSTGRES_DB=user_service \
+                          -e REDIS_ADDRESS=user-service_redis:6379 \
                           -e CONFIG_PATH=/app/config/local-cfg.yaml \
                           ${DOCKER_IMAGE}:latest
                         
@@ -65,7 +75,12 @@ pipeline {
                     sh '''
                         echo "Checking application health..."
                         docker ps | grep user-service-app
+                        
+                        echo "Application logs:"
                         docker logs user-service-app
+                        
+                        echo "Testing database connection from app container:"
+                        docker exec user-service-app nc -zv user-service-db 5432 || true
                     '''
                 }
             }
@@ -79,7 +94,19 @@ pipeline {
         }
         failure {
             echo 'Build failed!'
-            sh 'docker logs user-service-app || true'
+            sh '''
+                echo "Application logs:"
+                docker logs user-service-app || true
+                
+                echo "Database logs:"
+                docker logs user-service-db || true
+                
+                echo "Redis logs:"
+                docker logs user-service_redis || true
+                
+                echo "Network info:"
+                docker network inspect user-service_default || true
+            '''
         }
         always {
             echo 'Cleaning up...'
